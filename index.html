@@ -1,50 +1,92 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DAYDREAM // DIRECTORY</title>
+    <title>DAYDREAM | 漂流</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;700;800&family=Inter:wght@300;400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Zen Kaku Gothic New"', 'sans-serif'],
+              display: ['"Bodoni Moda"', 'serif'],
+            },
+            colors: {
+              'void': '#000000',
+              'flash': '#FFFFFF',
+              'static': '#222222',
+            },
+            cursor: {
+              'none': 'none',
+            },
+            animation: {
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
     <style>
       :root {
         --cursor-size: 20px;
       }
+      
       body {
-        background-color: #030303;
-        color: #e0e0e0;
-        cursor: none; /* Hide default cursor */
+        background-color: #000000;
+        color: #FFFFFF;
         overflow-x: hidden;
+        cursor: none;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
-      
-      /* Smooth scrolling setup */
-      html {
-        scroll-behavior: smooth;
+
+      /* Static Noise Overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.08;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        z-index: 9990;
       }
 
-      /* Custom Scrollbar */
+      /* Inverted Selection */
+      ::selection {
+        background-color: #FFFFFF;
+        color: #000000;
+      }
+
+      /* Scrollbar Hide */
       ::-webkit-scrollbar {
-        width: 4px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #000;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #444;
+        width: 0px;
+        background: transparent;
       }
       
-      .font-serif-display { font-family: 'Cormorant Garamond', serif; }
-      .font-mono-display { font-family: 'Space Mono', monospace; }
-      .font-grotesk { font-family: 'Syne', sans-serif; }
-      .font-sans-clean { font-family: 'Inter', sans-serif; }
-      
-      .blend-difference { mix-blend-mode: difference; }
-      .text-stroke-1 { -webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent; }
-      .text-stroke-hover:hover { -webkit-text-stroke: 0px; color: white; }
+      .vertical-text {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+      }
+
+      .blend-difference {
+        mix-blend-mode: difference;
+      }
     </style>
   <script type="importmap">
 {
@@ -52,15 +94,16 @@
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.23.26"
+    "react-router-dom": "https://esm.sh/react-router-dom@^6.28.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "framer-motion": "https://esm.sh/framer-motion@^11.0.0"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
+  <body class="antialiased">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

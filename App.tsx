@@ -1,114 +1,151 @@
-import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
-import { Noise } from './components/Noise';
-import { Hero } from './components/Hero';
-import { Gallery } from './components/Gallery';
-import { DreamLog } from './components/DreamLog';
-import { CustomCursor } from './components/CustomCursor';
 
-const App: React.FC = () => {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+import React, { useEffect, useState } from 'react';
+import { HashRouter, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion';
+import { HeroModule, AboutModule, ProjectsModule, FooterModule } from './components/Modules';
+import ChatBot from './components/ChatBot';
 
-  const [time, setTime] = useState(new Date());
+// --- Void Cursor (The Black Hole) ---
+const VoidCursor = () => {
+  const mouseX = useMotionValue(-100);
+  const mouseY = useMotionValue(-100);
+  
+  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 }; // Snappy, not floaty
+  const x = useSpring(mouseX, springConfig);
+  const y = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const handleMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
   }, []);
 
   return (
-    <main className="relative min-h-screen w-full">
-      <CustomCursor />
-      <Noise />
-      
-      {/* Top Progress Line */}
+    <>
+      {/* The Negative Point */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-white z-[60] mix-blend-exclusion"
-        style={{ scaleX, transformOrigin: "0%" }}
+        className="fixed top-0 left-0 w-4 h-4 bg-white rounded-full pointer-events-none z-[9999] blend-difference"
+        style={{ x, y, translateX: '-50%', translateY: '-50%' }}
       />
+      {/* The Event Horizon */}
+      <motion.div
+        className="fixed top-0 left-0 w-12 h-12 border border-white rounded-full pointer-events-none z-[9998] blend-difference opacity-50"
+        style={{ x, y, translateX: '-50%', translateY: '-50%' }}
+        transition={{ type: "spring", damping: 40, stiffness: 200 }}
+      />
+    </>
+  );
+};
 
-      {/* Floating Header */}
-      <header className="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-start z-50 pointer-events-none mix-blend-difference text-white">
-        <div className="flex flex-col gap-1">
-          <h1 className="font-grotesk font-bold text-xl tracking-tighter leading-none">DAYDREAM®</h1>
-          <span className="font-mono-display text-[10px] tracking-widest opacity-60">PORTFOLIO.2025</span>
-        </div>
+// --- Stark Navigation ---
+const Navigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-        <div className="flex flex-col items-end gap-1">
-          <button className="pointer-events-auto font-mono-display text-xs border border-white/20 hover:bg-white hover:text-black transition-colors px-4 py-1 rounded-full cursor-hover backdrop-blur-md">
-            MENU
-          </button>
-        </div>
-      </header>
-
-      {/* Side Data (Math Rock Elements) */}
-      <div className="fixed bottom-8 left-8 z-40 font-mono-display text-[9px] leading-relaxed text-zinc-500 mix-blend-difference hidden md:block">
-        <div className="flex gap-4">
-           <div>
-             <span className="block opacity-50">LOCAL_TIME</span>
-             {time.toLocaleTimeString([], { hour12: false })}
-           </div>
-           <div>
-             <span className="block opacity-50">COORDS</span>
-             35.6762° N / 139.6503° E
-           </div>
-           <div>
-             <span className="block opacity-50">FPS</span>
-             60.0
-           </div>
-        </div>
+  return (
+    <>
+      {/* Top Left: Identity */}
+      <div className="fixed top-8 left-8 z-50 blend-difference">
+         <button onClick={() => navigate('/')} className="group flex flex-col items-start">
+            <span className="font-display font-bold text-2xl tracking-tighter leading-none group-hover:italic transition-all">DAYDREAM</span>
+            <span className="font-sans text-[10px] tracking-[0.2em] uppercase opacity-50 group-hover:opacity-100">Observer</span>
+         </button>
       </div>
 
-      {/* Content Wrapper */}
-      <div className="relative z-10 bg-[#030303]">
-        <Hero />
-        
-        {/* About Section - Minimalist */}
-        <section className="px-6 md:px-12 py-32 max-w-[90vw] mx-auto border-r border-white/10 flex flex-col items-end text-right">
-           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-3xl"
-           >
-             <p className="font-grotesk text-4xl md:text-6xl font-bold leading-[0.9] text-white mb-8">
-               <span className="opacity-30">I CREATE</span> DIGITAL HALLUCINATIONS <span className="opacity-30">FOR THE</span> MODERN WEB.
-             </p>
-             <p className="font-mono-display text-xs md:text-sm text-zinc-400 max-w-md ml-auto">
-               Merging the raw imperfection of shoegaze music with the calculated precision of creative coding. Based in the cloud, operating globally.
-             </p>
-           </motion.div>
-        </section>
-
-        <Gallery />
-        <DreamLog />
-        
-        <footer className="py-24 px-6 md:px-12 bg-black text-white relative overflow-hidden">
-           {/* Big Footer Type */}
-           <div className="relative z-10 border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between">
-              <div className="font-grotesk text-[15vw] leading-[0.8] font-black tracking-tighter opacity-10 select-none absolute bottom-0 left-0 pointer-events-none">
-                END
-              </div>
-              
-              <div className="flex flex-col gap-4 font-mono-display text-xs z-20">
-                <a href="#" className="hover:text-fuchsia-500 cursor-hover">[ GITHUB ]</a>
-                <a href="#" className="hover:text-fuchsia-500 cursor-hover">[ TWITTER ]</a>
-                <a href="#" className="hover:text-fuchsia-500 cursor-hover">[ EMAIL ]</a>
-              </div>
-
-              <div className="mt-12 md:mt-0 font-sans-clean text-xs text-zinc-600 self-end z-20 text-right">
-                <p>&copy; 2025 DAYDREAM INC.</p>
-                <p>DESIGNED WITH CHAOS</p>
-              </div>
-           </div>
-        </footer>
+      {/* Top Right: Menu Trigger */}
+      <div className="fixed top-8 right-8 z-50 blend-difference">
+         <button 
+            onClick={() => setMenuOpen(!menuOpen)} 
+            className="font-sans text-xs tracking-[0.2em] uppercase hover:line-through decoration-white transition-all"
+         >
+            {menuOpen ? 'Close' : 'Menu'}
+         </button>
       </div>
-    </main>
+
+      {/* Bottom Right: Coordinates */}
+      <div className="fixed bottom-8 right-8 z-50 blend-difference text-right hidden md:block">
+         <span className="font-sans text-[10px] tracking-widest block">
+             WORLD_LINE: 0.000000
+         </span>
+         <span className="font-display text-xl italic">
+            {location.pathname === '/' ? 'The Beginning' : location.pathname.replace('/', '')}
+         </span>
+      </div>
+
+      {/* Full Screen Void Menu */}
+      <AnimatePresence>
+         {menuOpen && (
+            <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               transition={{ duration: 0.3 }}
+               className="fixed inset-0 bg-white z-[100] flex items-center justify-center text-black"
+            >
+               <div className="flex flex-col items-center gap-8">
+                  {[
+                     { path: '/', label: '漂流' }, // Drift
+                     { path: '/monologue', label: '独白' }, // Monologue
+                     { path: '/fragments', label: '断片' }, // Fragments
+                     { path: '/echo', label: '残響' } // Echo
+                  ].map((item, i) => (
+                     <motion.button
+                        key={item.path}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                        onClick={() => { navigate(item.path); setMenuOpen(false); }}
+                        className="font-display font-black text-6xl md:text-8xl hover:italic transition-all duration-300"
+                     >
+                        {item.label}
+                     </motion.button>
+                  ))}
+               </div>
+            </motion.div>
+         )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+const Content = () => {
+  const location = useLocation();
+
+  return (
+    <div className="bg-void min-h-screen w-full text-flash selection:bg-white selection:text-black overflow-hidden relative">
+         <VoidCursor />
+         <Navigation />
+         
+         <AnimatePresence mode="wait">
+            <motion.div
+               key={location.pathname}
+               initial={{ opacity: 0, filter: "blur(20px)" }}
+               animate={{ opacity: 1, filter: "blur(0px)" }}
+               exit={{ opacity: 0, filter: "blur(20px)" }}
+               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+               className="w-full min-h-screen"
+            >
+               {location.pathname === '/' && <HeroModule />}
+               {location.pathname === '/monologue' && <AboutModule />}
+               {location.pathname === '/fragments' && <ProjectsModule />}
+               {location.pathname === '/echo' && <FooterModule />}
+            </motion.div>
+         </AnimatePresence>
+         
+         <ChatBot />
+    </div>
+  );
+}
+
+const App = () => {
+  return (
+    <HashRouter>
+      <Content />
+    </HashRouter>
   );
 };
 

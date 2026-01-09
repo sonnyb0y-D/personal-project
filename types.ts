@@ -1,17 +1,30 @@
-export interface NavItem {
-  label: string;
-  href: string;
-}
-
-export interface GalleryItem {
-  id: number;
+export interface Project {
+  id: string;
   title: string;
-  category: string;
+  description: string;
+  tags: string[];
   imageUrl: string;
-  aspect: string; // Tailwind class like aspect-video or aspect-square
+  link?: string;
 }
 
-export interface DreamResponse {
+export interface Experience {
+  id: string;
+  role: string;
+  company: string;
+  period: string;
+  description: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
   text: string;
-  mood: string;
+  timestamp: Date;
+  isThinking?: boolean;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
 }
