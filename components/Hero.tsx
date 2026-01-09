@@ -1,67 +1,168 @@
-import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { Play, ArrowRight, Zap } from 'lucide-react';
 
-const Marquee: React.FC<{ text: string; direction?: number }> = ({ text, direction = 1 }) => {
-  return (
-    <div className="flex overflow-hidden whitespace-nowrap opacity-90 select-none">
-      <motion.div
-        className="flex gap-8"
-        animate={{ x: direction === 1 ? [0, -1000] : [-1000, 0] }}
-        transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
-      >
-        {[...Array(4)].map((_, i) => (
-          <span key={i} className="text-[12vw] leading-[0.85] font-grotesk font-black uppercase text-transparent text-stroke-1 hover:text-white transition-all duration-500 cursor-hover">
-            {text}
-          </span>
-        ))}
-      </motion.div>
-    </div>
-  );
+// Decryption Text Effect Component
+const DecryptText: React.FC<{ text: string; className?: string; revealDelay?: number }> = ({ text, className, revealDelay = 0 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+
+  useEffect(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(prev => 
+        text
+          .split("")
+          .map((letter, index) => {
+            if (index < iteration) return text[index];
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join("")
+      );
+
+      if (iteration >= text.length) { 
+        clearInterval(interval);
+      }
+      
+      // Start revealing after delay
+      setTimeout(() => {
+        iteration += 1 / 3;
+      }, revealDelay);
+      
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return <span className={className}>{displayText}</span>;
 };
 
-export const Hero: React.FC = () => {
+const Hero: React.FC = () => {
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y1 = useTransform(scrollY, [0, 500], [0, 150]);
   const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+  
+  // Parallax Mouse Effect
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const x = (clientX / window.innerWidth - 0.5) * 20;
+    const y = (clientY / window.innerHeight - 0.5) * 20;
+    setMousePosition({ x, y });
+  };
 
   return (
-    <section className="min-h-screen relative flex flex-col justify-center overflow-hidden bg-[#030303]">
-      {/* Dynamic Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+    <section 
+      onMouseMove={handleMouseMove}
+      className="h-screen w-full relative overflow-hidden bg-void-black text-white flex flex-col items-center justify-center cursor-crosshair"
+    >
       
-      {/* Abstract Shapes */}
-      <motion.div 
-        style={{ y: y1 }}
-        className="absolute top-[10%] right-[10%] w-[30vw] h-[30vw] bg-fuchsia-900/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" 
-      />
-      <motion.div 
-        style={{ y: y2 }}
-        className="absolute bottom-[10%] left-[10%] w-[40vw] h-[40vw] bg-blue-900/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen" 
-      />
+      {/* Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-[0.08] pointer-events-none" 
+           style={{ 
+             backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', 
+             backgroundSize: '80px 80px' 
+           }}>
+      </div>
+      
+      {/* Radial Gradient Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white opacity-[0.03] blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="relative z-10 py-20 flex flex-col gap-0 mix-blend-lighten">
-        <Marquee text="DAYDREAMING" direction={1} />
-        <Marquee text="INDIE.COLLECTIVE" direction={-1} />
-        <Marquee text="SHOEGAZE.MATH" direction={1} />
+      {/* Main Composition */}
+      <div className="relative z-10 w-full max-w-[1920px] px-6 md:px-12 h-screen flex flex-col justify-between py-12">
+        
+        {/* Top Bar: Technical Status */}
+        <div className="flex justify-between items-start font-mono text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-stone-400">
+           <div className="flex flex-col gap-2">
+             <div className="flex items-center gap-2 text-signal-yellow">
+                <span className="w-2 h-2 bg-signal-yellow rounded-full animate-pulse"></span>
+                <DecryptText text="SYSTEM_ONLINE" />
+             </div>
+             <span>ID: DAYDREAM_UNIT_01</span>
+           </div>
+           <div className="text-right flex flex-col gap-2">
+             <span>LOC: 35.6762° N, 139.6503° E</span>
+             <span className="text-white">ENCRYPTION: NONE</span>
+           </div>
+        </div>
+
+        {/* Central Typography: Kinetic */}
+        <div className="relative flex flex-col items-center justify-center mix-blend-difference">
+          <motion.div
+            style={{ x: mousePosition.x * -1, y: mousePosition.y * -1 + y1.get() }}
+            className="relative z-20"
+          >
+            <h1 className="font-display font-black text-[18vw] leading-[0.8] tracking-tighter text-white select-none relative">
+              <span className="absolute -top-6 left-2 text-xs font-mono font-normal tracking-widest text-signal-yellow opacity-0 md:opacity-100">FIG.01</span>
+              SONNY
+            </h1>
+          </motion.div>
+          
+          <motion.div 
+             initial={{ width: 0 }}
+             animate={{ width: "40vw" }}
+             transition={{ delay: 0.5, duration: 1, ease: "circOut" }}
+             className="h-[2px] bg-signal-yellow z-30 my-2 md:my-4 relative"
+          >
+             <div className="absolute right-0 -top-1 w-2 h-3 bg-signal-yellow"></div>
+          </motion.div>
+
+          <motion.div
+            style={{ x: mousePosition.x, y: mousePosition.y + y2.get() }}
+            className="relative z-10"
+          >
+            <h1 className="font-display font-black text-[18vw] leading-[0.8] tracking-tighter text-transparent text-outline-bold hover:text-white transition-colors duration-300 select-none">
+              BOY
+            </h1>
+          </motion.div>
+
+          {/* Floating 'Start' Prompt */}
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="absolute bottom-[-15vh] md:bottom-[-10vh] flex flex-col items-center gap-4 z-40"
+          >
+             <Link to="/fragments" className="group relative px-8 py-4 bg-transparent border border-stone-600 hover:border-signal-yellow transition-colors duration-300 overflow-hidden">
+                <div className="absolute inset-0 bg-signal-yellow transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                <div className="relative flex items-center gap-3">
+                   <Play size={14} className="fill-white group-hover:fill-black text-white group-hover:text-black transition-colors" />
+                   <span className="font-mono text-xs font-bold tracking-[0.3em] uppercase text-white group-hover:text-black transition-colors">Enter The Void</span>
+                </div>
+             </Link>
+          </motion.div>
+        </div>
+
+        {/* Bottom Credits / Footer */}
+        <div className="flex justify-between items-end border-t border-white/10 pt-6">
+           <div className="font-mono text-[9px] text-stone-500 w-1/3">
+             <p className="mb-2 uppercase tracking-widest text-white">Warning</p>
+             <p className="leading-relaxed">
+               This site contains high-density visual data. <br/>
+               Epilepsy warning: Flashing lights and patterns.
+             </p>
+           </div>
+           
+           <div className="hidden md:flex gap-12 font-display font-bold text-4xl text-stone-800 uppercase select-none">
+              <span className="hover:text-signal-yellow transition-colors duration-300">Design</span>
+              <span className="hover:text-signal-yellow transition-colors duration-300">Film</span>
+              <span className="hover:text-signal-yellow transition-colors duration-300">Code</span>
+           </div>
+
+           <div className="w-1/3 flex justify-end">
+              <Zap className="text-signal-yellow animate-pulse-fast" />
+           </div>
+        </div>
+
       </div>
 
-      <div className="absolute bottom-12 left-6 md:left-12 max-w-sm">
-        <div className="h-[1px] w-full bg-white/30 mb-4"></div>
-        <p className="font-mono-display text-xs text-zinc-400 mb-2">
-          [ 001 ] — INTRO
-        </p>
-        <p className="font-serif-display text-2xl italic text-white leading-tight">
-          "Constructing static noise into digital melodies."
-        </p>
-      </div>
+      {/* Decorative Elements */}
+      <div className="absolute top-1/2 left-8 w-px h-24 bg-gradient-to-b from-transparent via-white to-transparent opacity-50"></div>
+      <div className="absolute top-1/2 right-8 w-px h-24 bg-gradient-to-b from-transparent via-white to-transparent opacity-50"></div>
 
-      <motion.div 
-        className="absolute bottom-12 right-6 md:right-12 font-mono-display text-xs text-right hidden md:block"
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        SCROLL_DOWN <br/> ↓
-      </motion.div>
     </section>
   );
 };
+
+export default Hero;
