@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAYDREAM | 漂流</title>
+    <link rel="stylesheet" href="index.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,38 +23,20 @@
               'flash': '#FFFFFF',
               'static': '#222222',
             },
-            cursor: {
-              'none': 'none',
-            },
             animation: {
-              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'float': 'float 6s ease-in-out infinite',
-            },
-            keyframes: {
-              float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-20px)' },
-              }
+              'spin-slow': 'spin 12s linear infinite',
             }
           }
         }
       }
     </script>
     <style>
-      :root {
-        --cursor-size: 20px;
-      }
-      
       body {
         background-color: #000000;
         color: #FFFFFF;
         overflow-x: hidden;
         cursor: none;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
-
-      /* Static Noise Overlay */
       body::before {
         content: "";
         position: fixed;
@@ -61,31 +44,17 @@
         left: 0;
         width: 100%;
         height: 100%;
-        opacity: 0.08;
+        opacity: 0.05;
         pointer-events: none;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        z-index: 9990;
+        z-index: 9999;
       }
-
-      /* Inverted Selection */
-      ::selection {
-        background-color: #FFFFFF;
-        color: #000000;
-      }
-
-      /* Scrollbar Hide */
-      ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-      }
-      
-      .vertical-text {
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-      }
-
       .blend-difference {
         mix-blend-mode: difference;
+      }
+      /* Hide scrollbar but keep functionality */
+      ::-webkit-scrollbar {
+        display: none;
       }
     </style>
   <script type="importmap">
@@ -103,7 +72,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="antialiased">
+  <body>
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
